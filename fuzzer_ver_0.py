@@ -4,7 +4,7 @@ program = sys.argv[1]
 
 f = open(program,'r')
 
-vuln_funcs = ['strcpy','scanf','gets','cin','strcat','sprintf']
+vuln_funcs = ['strcpy','scanf','gets','strcat','sprintf']
 value = []
 
 i = 0
