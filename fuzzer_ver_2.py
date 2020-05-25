@@ -29,6 +29,7 @@ def binary_exploit(binary_name, input_addr, exploit_data, binary_data):
 				p.sendline('ls')
 			except:
 				i += 1
+				p.close()
 			else:
 				break
 
@@ -53,6 +54,7 @@ def binary_exploit(binary_name, input_addr, exploit_data, binary_data):
 				p.sendline('ls')
 			except:
 				i += 1
+				p.close()
 			else:
 				p.interactive()
 				break

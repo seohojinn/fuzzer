@@ -46,6 +46,7 @@ def binary_exploit(binary_name, exploit_data, binary_data, recv_check):
 		
 			except:
 				i += 1
+				p.close()
 			else:
 				p.interactive()
 				break
@@ -84,6 +85,7 @@ def binary_exploit(binary_name, exploit_data, binary_data, recv_check):
 		
 			except:
 				i += 1
+				p.close()
 			else:
 				break
 	
