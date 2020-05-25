@@ -36,12 +36,12 @@ recv_check = raw_input('recv str ? (yes or no) : ').rstrip('\n')
 
 if recv_check == 'yes':
 
-    recv_str = raw_input('recv string data : ')
+	recv_str = raw_input('recv string data : ')
 
-    newline = raw_input('remove newline ? (yes or no) : ').rstrip('\n')
+	newline = raw_input('remove newline ? (yes or no) : ').rstrip('\n')
 
-    if newline == 'yes':
-        recv_str = recv_str.rstrip('\n')
+	if newline == 'yes':
+		recv_str = recv_str.rstrip('\n')
 
 while i < 10000:
 
